@@ -1,4 +1,4 @@
-package edu.vuas.numericalmethods;
+package numericalmethods;
 
 public final class Main {
 

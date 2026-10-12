@@ -1,4 +1,4 @@
-package edu.vuas.numericalmethods;
+package numericalmethods;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

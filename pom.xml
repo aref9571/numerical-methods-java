@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>edu.vuas</groupId>
+    <groupId>numericalmethods</groupId>
     <artifactId>numerical-methods</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -56,7 +56,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>edu.vuas.numericalmethods.Main</mainClass>
+                            <mainClass>numericalmethods.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
