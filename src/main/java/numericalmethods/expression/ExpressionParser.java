@@ -1,8 +1,12 @@
 package numericalmethods.expression;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public final class ExpressionParser {
+
+    private static final Map<String, Double> CONSTANTS = Map.of("pi", Math.PI, "e", Math.E);
 
     private final List<Token> tokens;
     private int current;
@@ -78,7 +82,7 @@ public final class ExpressionParser {
         Token token = advance();
         return switch (token.type()) {
             case NUMBER -> new NumberExpression(token.numberValue());
-            case IDENTIFIER -> new VariableExpression(token.text());
+            case IDENTIFIER -> parseIdentifier(token);
             case LEFT_PAREN -> parseParenthesized(token);
             case END -> throw new ExpressionSyntaxException("Expression ends where a value was expected", token.position());
             default -> throw new ExpressionSyntaxException(
@@ -86,14 +90,53 @@ public final class ExpressionParser {
         };
     }
 
+    private Expression parseIdentifier(Token identifier) {
+        String name = identifier.text();
+        if (peek().type() == TokenType.LEFT_PAREN) {
+            return parseFunctionCall(identifier);
+        }
+        if (CONSTANTS.containsKey(name)) {
+            return new NumberExpression(CONSTANTS.get(name));
+        }
+        if (MathFunction.fromName(name).isPresent()) {
+            throw new ExpressionSyntaxException(
+                    "Function '" + name + "' must be followed by '(', for example " + name + "(x)",
+                    identifier.position());
+        }
+        return new VariableExpression(name);
+    }
+
+    private Expression parseFunctionCall(Token identifier) {
+        String name = identifier.text();
+        Optional<MathFunction> function = MathFunction.fromName(name);
+        if (function.isEmpty()) {
+            throw new ExpressionSyntaxException("Unknown function '" + name + "'", identifier.position());
+        }
+        Token openParenthesis = advance();
+        if (peek().type() == TokenType.RIGHT_PAREN) {
+            throw new ExpressionSyntaxException("Function '" + name + "' needs one argument", peek().position());
+        }
+        Expression argument = parseSum();
+        if (peek().type() == TokenType.COMMA) {
+            throw new ExpressionSyntaxException(
+                    "Function '" + name + "' takes exactly one argument", peek().position());
+        }
+        expectClosingParenthesis(openParenthesis);
+        return new FunctionExpression(function.get(), argument);
+    }
+
     private Expression parseParenthesized(Token openParenthesis) {
         Expression inner = parseSum();
+        expectClosingParenthesis(openParenthesis);
+        return inner;
+    }
+
+    private void expectClosingParenthesis(Token openParenthesis) {
         if (peek().type() != TokenType.RIGHT_PAREN) {
             throw new ExpressionSyntaxException("Missing ')' for the '(' at column " + (openParenthesis.position() + 1),
                     peek().position());
         }
         advance();
-        return inner;
     }
 
     private Token peek() {

@@ -161,8 +161,7 @@ class ExpressionParserTest {
             "')', 0",
             "'()', 1",
             "'2^', 2",
-            "'-', 1",
-            "'x(2)', 1"
+            "'-', 1"
     })
     void rejectsInvalidSyntaxWithPosition(String input, int expectedPosition) {
         ExpressionSyntaxException exception =

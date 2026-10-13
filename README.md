@@ -4,7 +4,7 @@ A command-line application for solving common numerical-methods problems in Java
 
 ## Status
 
-Early development. The expression parser for arithmetic is implemented; functions, constants and the numerical methods are not implemented yet.
+Early development. The expression parser, including functions and constants, is implemented; the numerical methods are not implemented yet.
 
 ## Requirements
 
@@ -30,6 +30,8 @@ Expressions are real-valued and use the following rules.
 |---|---|
 | Numbers | `2`, `2.5`, `.25`, `1e-6`, `2.5E+3` |
 | Variables | `x`, `t`, `y1`, `y2` (an English letter followed by letters or digits) |
+| Constants | `pi`, `e` |
+| Functions | `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `exp`, `ln`, `log10`, `sqrt`, `abs` |
 | Operators | `+`, `-`, `*`, `/`, `^` and parentheses |
 
 Precedence, from highest to lowest:
@@ -42,7 +44,9 @@ Precedence, from highest to lowest:
 
 Multiplication must be written explicitly: `2*x`, not `2x`.
 
-Evaluation fails with a clear message for division by zero, a variable without a value, and any result that is not a finite number, such as `0^-1` or `(-8)^(1/3)`.
+Functions take exactly one argument in parentheses, for example `sin(x)` or `sqrt(x^2 + 1)`. Trigonometric functions use radians, `ln` is the natural logarithm and `log10` is the base-10 logarithm. Names are case-sensitive, so `Sin(x)` is an unknown function. The names `pi` and `e` and the function names cannot be used as variables.
+
+Evaluation fails with a clear message for division by zero, a variable without a value, a value outside a function's domain such as `sqrt(-1)`, `ln(0)` or `asin(2)`, and any other result that is not a finite number, such as `0^-1` or `(-8)^(1/3)`.
 
 ## Run the tests
 

@@ -10,5 +10,6 @@ public enum TokenType {
     CARET,
     LEFT_PAREN,
     RIGHT_PAREN,
+    COMMA,
     END
 }

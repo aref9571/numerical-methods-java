@@ -27,12 +27,13 @@ class TokenizerTest {
     }
 
     @Test
-    void tokenizesAllOperatorsAndParentheses() {
-        List<Token> tokens = Tokenizer.tokenize("+-*/^()");
+    void tokenizesAllOperatorsParenthesesAndComma() {
+        List<Token> tokens = Tokenizer.tokenize("+-*/^(),");
 
         assertEquals(List.of(
                 TokenType.PLUS, TokenType.MINUS, TokenType.STAR, TokenType.SLASH,
-                TokenType.CARET, TokenType.LEFT_PAREN, TokenType.RIGHT_PAREN, TokenType.END), types(tokens));
+                TokenType.CARET, TokenType.LEFT_PAREN, TokenType.RIGHT_PAREN, TokenType.COMMA, TokenType.END),
+                types(tokens));
     }
 
     @Test
@@ -138,7 +139,6 @@ class TokenizerTest {
     @CsvSource({
             "'x # 2', 2",
             "'2 % 3', 2",
-            "'x,y', 1",
             "'y_1', 1",
             "'x = 1', 2",
             "'2 − 1', 2",

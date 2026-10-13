@@ -118,6 +118,7 @@ public final class Tokenizer {
             case '^' -> TokenType.CARET;
             case '(' -> TokenType.LEFT_PAREN;
             case ')' -> TokenType.RIGHT_PAREN;
+            case ',' -> TokenType.COMMA;
             default -> throw new ExpressionSyntaxException("Unexpected character '" + symbol + "'", index);
         };
         tokens.add(new Token(type, String.valueOf(symbol), index));
