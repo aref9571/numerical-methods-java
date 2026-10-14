@@ -7,7 +7,7 @@ import java.util.function.DoubleUnaryOperator;
 public enum MathFunction {
     SIN("sin", Math::sin),
     COS("cos", Math::cos),
-    TAN("tan", Math::tan),
+    TAN("tan", MathFunction::tangent),
     ASIN("asin", Math::asin),
     ACOS("acos", Math::acos),
     ATAN("atan", Math::atan),
@@ -16,6 +16,8 @@ public enum MathFunction {
     LOG10("log10", Math::log10),
     SQRT("sqrt", Math::sqrt),
     ABS("abs", Math::abs);
+
+    private static final int TANGENT_POLE_TOLERANCE_IN_ULPS = 4;
 
     private final String functionName;
     private final DoubleUnaryOperator operation;
@@ -42,5 +44,12 @@ public enum MathFunction {
                     functionName + "(" + argument + ") is undefined or not a finite number");
         }
         return result;
+    }
+
+    private static double tangent(double argument) {
+        if (Math.abs(Math.cos(argument)) <= TANGENT_POLE_TOLERANCE_IN_ULPS * Math.ulp(argument)) {
+            return Double.NaN;
+        }
+        return Math.tan(argument);
     }
 }

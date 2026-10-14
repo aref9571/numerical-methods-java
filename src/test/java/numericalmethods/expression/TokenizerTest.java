@@ -88,7 +88,7 @@ class TokenizerTest {
             "1E6, 1000000.0",
             "2.5e+3, 2500.0",
             "007, 7.0",
-            "1e-400, 0.0"
+            "0e-400, 0.0"
     })
     void tokenizesNumbers(String text, double expectedValue) {
         List<Token> tokens = Tokenizer.tokenize(text);
@@ -117,13 +117,30 @@ class TokenizerTest {
             "'3 + 1.5.2', 4",
             "'2x', 1",
             "'3sin(x)', 1",
-            "'1e999', 0"
+            "'1e999', 0",
+            "'1e-400', 0",
+            "'2 + 0.5e-320', 4",
+            "'1e-308', 0"
     })
     void rejectsMalformedNumbers(String input, int expectedPosition) {
         ExpressionSyntaxException exception =
                 assertThrows(ExpressionSyntaxException.class, () -> Tokenizer.tokenize(input));
 
         assertEquals(expectedPosition, exception.position());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"0", "0.0", ".0", "0.000e5", "2.3e-308", "1e-300"})
+    void acceptsZeroAndSmallNormalNumbers(String input) {
+        assertEquals(TokenType.NUMBER, Tokenizer.tokenize(input).get(0).type());
+    }
+
+    @Test
+    void tooSmallNumberHasClearMessage() {
+        ExpressionSyntaxException exception =
+                assertThrows(ExpressionSyntaxException.class, () -> Tokenizer.tokenize("1e-400"));
+
+        assertTrue(exception.getMessage().startsWith("Number '1e-400' is too small"), exception.getMessage());
     }
 
     @Test

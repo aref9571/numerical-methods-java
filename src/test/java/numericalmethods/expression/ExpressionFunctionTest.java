@@ -107,7 +107,11 @@ class ExpressionFunctionTest {
             "'log10(0)'",
             "'asin(2)'",
             "'acos(-1.5)'",
-            "'exp(1000)'"
+            "'exp(1000)'",
+            "'tan(pi/2)'",
+            "'tan(-pi/2)'",
+            "'tan(3*pi/2)'",
+            "'tan(1001*pi/2)'"
     })
     void domainErrorsFailWithFunctionName(String input) {
         ExpressionEvaluationException exception =
@@ -115,6 +119,17 @@ class ExpressionFunctionTest {
 
         String functionName = input.substring(0, input.indexOf('('));
         assertTrue(exception.getMessage().startsWith(functionName + "("), exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "'tan(1.5707)', 10381.327285903",
+            "'tan(pi/2 - 1e-8)', 1e8",
+            "'tan(pi)', 0",
+            "'tan(0)', 0"
+    })
+    void tangentNearButNotAtAPoleIsFinite(String input, double expected) {
+        assertEquals(expected, evaluate(input), Math.abs(expected) * 1e-6 + TOLERANCE);
     }
 
     @Test

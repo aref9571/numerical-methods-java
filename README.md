@@ -44,9 +44,11 @@ Precedence, from highest to lowest:
 
 Multiplication must be written explicitly: `2*x`, not `2x`.
 
+Number literals must fit in a `double` without losing precision: `1e999` is too large and a non-zero literal below about `2.2e-308`, such as `1e-400`, is too small. Both are syntax errors.
+
 Functions take exactly one argument in parentheses, for example `sin(x)` or `sqrt(x^2 + 1)`. Trigonometric functions use radians, `ln` is the natural logarithm and `log10` is the base-10 logarithm. Names are case-sensitive, so `Sin(x)` is an unknown function. The names `pi` and `e` and the function names cannot be used as variables.
 
-Evaluation fails with a clear message for division by zero, a variable without a value, a value outside a function's domain such as `sqrt(-1)`, `ln(0)` or `asin(2)`, and any other result that is not a finite number, such as `0^-1` or `(-8)^(1/3)`.
+Evaluation fails with a clear message for division by zero, a variable without a value, a value outside a function's domain such as `sqrt(-1)`, `ln(0)` or `asin(2)`, and any other result that is not a finite number, such as `0^-1` or `(-8)^(1/3)`. `tan` is reported as undefined when its argument lies on a pole such as `pi/2`, within a few units of floating-point rounding; values close to a pole, such as `tan(1.5707)`, are still returned.
 
 Expressions are limited to 1000 characters and 100 levels of nesting (parentheses, function calls, unary signs and chained `^`). Longer or deeper input is rejected with a syntax error instead of exhausting memory or the call stack.
 

@@ -58,10 +58,27 @@ public final class Tokenizer {
         rejectInvalidCharacterAfterNumber(start);
 
         String text = input.substring(start, index);
-        if (Double.isInfinite(Double.parseDouble(text))) {
+        double value = Double.parseDouble(text);
+        if (Double.isInfinite(value)) {
             throw new ExpressionSyntaxException("Number '" + text + "' is too large", start);
         }
+        if (value < Double.MIN_NORMAL && hasNonZeroDigitBeforeExponent(text)) {
+            throw new ExpressionSyntaxException("Number '" + text + "' is too small", start);
+        }
         tokens.add(new Token(TokenType.NUMBER, text, start));
+    }
+
+    private static boolean hasNonZeroDigitBeforeExponent(String number) {
+        for (int i = 0; i < number.length(); i++) {
+            char c = number.charAt(i);
+            if (c == 'e' || c == 'E') {
+                return false;
+            }
+            if (c >= '1' && c <= '9') {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean startsExponent() {
