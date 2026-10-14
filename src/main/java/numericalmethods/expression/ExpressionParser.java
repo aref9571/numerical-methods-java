@@ -6,10 +6,13 @@ import java.util.Optional;
 
 public final class ExpressionParser {
 
+    public static final int MAX_NESTING_DEPTH = 100;
+
     private static final Map<String, Double> CONSTANTS = Map.of("pi", Math.PI, "e", Math.E);
 
     private final List<Token> tokens;
     private int current;
+    private int depth;
 
     private ExpressionParser(List<Token> tokens) {
         this.tokens = tokens;
@@ -58,6 +61,17 @@ public final class ExpressionParser {
     }
 
     private Expression parseSignedFactor() {
+        depth++;
+        if (depth > MAX_NESTING_DEPTH) {
+            throw new ExpressionSyntaxException(
+                    "Expression is nested too deeply, the limit is " + MAX_NESTING_DEPTH + " levels", peek().position());
+        }
+        Expression factor = parseSignOrPower();
+        depth--;
+        return factor;
+    }
+
+    private Expression parseSignOrPower() {
         if (peek().type() == TokenType.MINUS) {
             advance();
             return new NegationExpression(parseSignedFactor());
@@ -133,8 +147,8 @@ public final class ExpressionParser {
 
     private void expectClosingParenthesis(Token openParenthesis) {
         if (peek().type() != TokenType.RIGHT_PAREN) {
-            throw new ExpressionSyntaxException("Missing ')' for the '(' at column " + (openParenthesis.position() + 1),
-                    peek().position());
+            throw new ExpressionSyntaxException("The '(' at column " + (openParenthesis.position() + 1)
+                    + " is never closed, expected ')'", peek().position());
         }
         advance();
     }

@@ -6,6 +6,8 @@ import java.util.Objects;
 
 public final class Tokenizer {
 
+    public static final int MAX_INPUT_LENGTH = 1000;
+
     private final String input;
     private final List<Token> tokens = new ArrayList<>();
     private int index;
@@ -16,6 +18,10 @@ public final class Tokenizer {
 
     public static List<Token> tokenize(String input) {
         Objects.requireNonNull(input, "input");
+        if (input.length() > MAX_INPUT_LENGTH) {
+            throw new ExpressionSyntaxException("Expression is too long: " + input.length()
+                    + " characters, the limit is " + MAX_INPUT_LENGTH, MAX_INPUT_LENGTH);
+        }
         return new Tokenizer(input).readAllTokens();
     }
 

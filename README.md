@@ -48,6 +48,19 @@ Functions take exactly one argument in parentheses, for example `sin(x)` or `sqr
 
 Evaluation fails with a clear message for division by zero, a variable without a value, a value outside a function's domain such as `sqrt(-1)`, `ln(0)` or `asin(2)`, and any other result that is not a finite number, such as `0^-1` or `(-8)^(1/3)`.
 
+Expressions are limited to 1000 characters and 100 levels of nesting (parentheses, function calls, unary signs and chained `^`). Longer or deeper input is rejected with a syntax error instead of exhausting memory or the call stack.
+
+Syntax errors report the column where the problem was found, counting from 1.
+
+| Input | Result |
+|---|---|
+| `x^3 - x - 2` with `x = 2` | `4` |
+| `exp(-x^2/2) / sqrt(2*pi)` with `x = 0` | `0.3989...` |
+| `2*sin(pi/6) + ln(e)` | `2` |
+| `2x + 1` | Missing operator between '2' and 'x'; multiplication must be written explicitly, for example 2*x at column 2 |
+| `2*(x+1` | The '(' at column 3 is never closed, expected ')' at column 7 |
+| `sqrt(-1)` | sqrt(-1.0) is undefined or not a finite number |
+
 ## Run the tests
 
 ```bash

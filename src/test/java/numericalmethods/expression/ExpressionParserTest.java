@@ -83,6 +83,74 @@ class ExpressionParserTest {
     }
 
     @Test
+    void divisionIsLeftAssociative() {
+        Expression expected = new BinaryExpression(BinaryOperator.DIVIDE,
+                new BinaryExpression(BinaryOperator.DIVIDE, new NumberExpression(12), new NumberExpression(3)),
+                new NumberExpression(2));
+
+        assertEquals(expected, ExpressionParser.parse("12/3/2"));
+    }
+
+    @Test
+    void multiplicationAndDivisionShareOneLevel() {
+        Expression expected = new BinaryExpression(BinaryOperator.MULTIPLY,
+                new BinaryExpression(BinaryOperator.DIVIDE, new NumberExpression(8), new NumberExpression(2)),
+                new NumberExpression(4));
+
+        assertEquals(expected, ExpressionParser.parse("8/2*4"));
+    }
+
+    @Test
+    void additionAndSubtractionShareOneLevel() {
+        Expression expected = new BinaryExpression(BinaryOperator.ADD,
+                new BinaryExpression(BinaryOperator.SUBTRACT, new NumberExpression(1), new NumberExpression(2)),
+                new NumberExpression(3));
+
+        assertEquals(expected, ExpressionParser.parse("1-2+3"));
+    }
+
+    @Test
+    void exponentiationBindsTighterThanMultiplication() {
+        Expression expected = new BinaryExpression(BinaryOperator.MULTIPLY,
+                new NumberExpression(2),
+                new BinaryExpression(BinaryOperator.POWER, new NumberExpression(3), new NumberExpression(2)));
+
+        assertEquals(expected, ExpressionParser.parse("2*3^2"));
+    }
+
+    @Test
+    void unaryMinusBindsTighterThanMultiplication() {
+        Expression expected = new BinaryExpression(BinaryOperator.MULTIPLY,
+                new NegationExpression(new NumberExpression(2)),
+                new NumberExpression(3));
+
+        assertEquals(expected, ExpressionParser.parse("-2*3"));
+    }
+
+    @Test
+    void exponentMayStartWithUnaryMinus() {
+        Expression expected = new BinaryExpression(BinaryOperator.POWER,
+                new NumberExpression(2),
+                new NegationExpression(new NumberExpression(3)));
+
+        assertEquals(expected, ExpressionParser.parse("2^-3"));
+    }
+
+    @Test
+    void parenthesesOverridePrecedence() {
+        Expression expected = new BinaryExpression(BinaryOperator.MULTIPLY,
+                new BinaryExpression(BinaryOperator.ADD, new NumberExpression(2), new NumberExpression(3)),
+                new NumberExpression(4));
+
+        assertEquals(expected, ExpressionParser.parse("(2+3)*4"));
+    }
+
+    @Test
+    void unaryPlusLeavesTheOperandUnchanged() {
+        assertEquals(new NumberExpression(2), ExpressionParser.parse("+2"));
+    }
+
+    @Test
     void evaluatesVariablesFromMap() {
         Expression expression = ExpressionParser.parse("x^3 - x - 2");
 

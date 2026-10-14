@@ -141,11 +141,11 @@ class ExpressionFunctionTest {
             "'pi(2)', 0, Unknown function 'pi'",
             "'sin()', 4, needs one argument",
             "'sin(1, 2)', 5, takes exactly one argument",
-            "'sin(x', 5, Missing ')'",
+            "'sin(x', 5, is never closed",
             "'sin x', 0, must be followed by '('",
             "'2*sqrt', 2, must be followed by '('",
             "'1, 2', 1, Unexpected ','",
-            "'(1, 2)', 2, Missing ')'"
+            "'(1, 2)', 2, is never closed"
     })
     void rejectsInvalidFunctionSyntax(String input, int expectedPosition, String expectedMessagePart) {
         ExpressionSyntaxException exception =
