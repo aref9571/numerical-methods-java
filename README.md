@@ -63,6 +63,26 @@ Syntax errors report the column where the problem was found, counting from 1.
 | `2*(x+1` | The '(' at column 3 is never closed, expected ')' at column 7 |
 | `sqrt(-1)` | sqrt(-1.0) is undefined or not a finite number |
 
+## Results and errors
+
+Iterative methods stop when the change between steps is within the tolerance or when they reach the iteration limit.
+
+- The tolerance must be a positive, finite number. The default is `1e-8`.
+- The iteration limit must be between 1 and 100000. The default is 100.
+- The tolerance works as an absolute tolerance for values up to 1 in size and as a relative tolerance for larger values: a step passes when `|change| <= tolerance * max(1, |value|)`.
+
+Each solver result has one of three statuses:
+
+| Status | Meaning |
+|---|---|
+| `CONVERGED` | The stopping test passed. |
+| `ITERATION_LIMIT_REACHED` | The limit was reached first. The last approximation is reported, but it is not presented as a solution. |
+| `BREAKDOWN` | The method could not continue, for example because a derivative became zero or a function value was undefined. The reason is reported. |
+
+Root-finding results also report the approximate root, the function value there, the number of iterations and an error estimate. The error estimate depends on the method and is not a guaranteed bound.
+
+Invalid input, such as a non-finite number, a tolerance of 0 or an iteration limit outside the allowed range, is rejected with an error before any calculation starts. Non-convergence is a normal result status, not an error. All results depend on floating-point precision, the input domain, each method's assumptions and the stopping test.
+
 ## Run the tests
 
 ```bash
