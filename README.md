@@ -4,7 +4,7 @@ A command-line application for solving common numerical-methods problems in Java
 
 ## Status
 
-Early development. The expression parser, including functions and constants, is implemented; the numerical methods are not implemented yet.
+Early development. The expression parser, including functions and constants, and the shared conventions for solver results and input validation are implemented; the numerical methods are not implemented yet.
 
 ## Requirements
 
@@ -43,6 +43,8 @@ Precedence, from highest to lowest:
 5. `+` and `-`, left-associative: `10-4-3` = 3
 
 Multiplication must be written explicitly: `2*x`, not `2x`.
+
+Not supported: complex numbers, functions with more than one argument, user-defined functions, piecewise functions and other textbook notations not listed above.
 
 Number literals must fit in a `double` without losing precision: `1e999` is too large and a non-zero literal below about `2.2e-308`, such as `1e-400`, is too small. Both are syntax errors.
 
