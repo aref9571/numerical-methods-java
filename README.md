@@ -4,7 +4,7 @@ A command-line application for solving common numerical-methods problems in Java
 
 ## Status
 
-Early development. The expression parser, including functions and constants, and the shared conventions for solver results and input validation are implemented; the numerical methods are not implemented yet.
+Early development. The expression parser, the shared conventions for solver results and input validation, and the error metrics are implemented; the other numerical methods are not implemented yet.
 
 ## Requirements
 
@@ -84,6 +84,20 @@ Each solver result has one of three statuses:
 Root-finding results also report the approximate root, the function value there, the number of iterations and an error estimate. The error estimate depends on the method and is not a guaranteed bound.
 
 Invalid input, such as a non-finite number, a tolerance of 0 or an iteration limit outside the allowed range, is rejected with an error before any calculation starts. Non-convergence is a normal result status, not an error. All results depend on floating-point precision, the input domain, each method's assumptions and the stopping test.
+
+## Error metrics
+
+For a true value `p` and an approximation `p*`:
+
+| Metric | Formula |
+|---|---|
+| Absolute error | `\|p - p*\|` |
+| Relative error | `\|p - p*\| / \|p\|` |
+| Percentage error | `100 * \|p - p*\| / \|p\|` |
+
+Both values must be finite numbers. When the true value is 0, the relative and percentage errors are undefined, and they are reported as errors instead of returning infinity or NaN. Use the absolute error in that case. A result too large for a `double` is also reported as an error.
+
+These metrics measure the error of one approximation against a known true value. They are not theoretical error bounds: a bound limits the error a method can make under stated conditions, without needing the true value, while a measured error only describes the case that was computed.
 
 ## Run the tests
 
