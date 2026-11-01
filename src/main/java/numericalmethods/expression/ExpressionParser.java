@@ -110,7 +110,7 @@ public final class ExpressionParser {
             return parseFunctionCall(identifier);
         }
         if (CONSTANTS.containsKey(name)) {
-            return new NumberExpression(CONSTANTS.get(name));
+            return new ConstantExpression(name, CONSTANTS.get(name));
         }
         if (MathFunction.fromName(name).isPresent()) {
             throw new ExpressionSyntaxException(

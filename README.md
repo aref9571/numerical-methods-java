@@ -4,7 +4,7 @@ A command-line application for solving common numerical-methods problems in Java
 
 ## Status
 
-Early development. The expression parser, the shared conventions for solver results and input validation, and the error metrics are implemented; the other numerical methods are not implemented yet.
+Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, and the error metrics are implemented; the other numerical methods are not implemented yet.
 
 ## Requirements
 
@@ -64,6 +64,22 @@ Syntax errors report the column where the problem was found, counting from 1.
 | `2x + 1` | Missing operator between '2' and 'x'; multiplication must be written explicitly, for example 2*x at column 2 |
 | `2*(x+1` | The '(' at column 3 is never closed, expected ')' at column 7 |
 | `sqrt(-1)` | sqrt(-1.0) is undefined or not a finite number |
+
+## Expression text and derivatives
+
+Parsed expressions can be shown as fully bracketed text, so it is clear how the input was read: `-x^2` is shown as `-(x^2)` and `x^3 - x - 2` as `((x^3) - x) - 2`. The text can be parsed again and gives the same expression.
+
+Derivatives are computed symbolically with the sum, product, quotient, power and chain rules, for every supported function. Trivial terms are simplified, so the derivative of `x^3 - x - 2` is `(3 * (x^2)) - 1`. Other variables are treated as constants.
+
+| Expression | Derivative |
+|---|---|
+| `x^n` with `n` not depending on `x` | `n * x^(n - 1)` |
+| `a^x` with `a` not depending on `x` | `a^x * ln(a)` |
+| `u^v` in general | `u^v * (v' * ln(u) + v * u' / u)`, so `u` must be positive |
+| `abs(u)` | `u / abs(u)`, undefined where `u = 0` |
+| `sqrt(u)`, `asin(u)`, `acos(u)` | undefined where the function has a vertical tangent, for example `sqrt` at 0 |
+
+Evaluating a derivative fails with a clear message at points where it is undefined, instead of returning a value. A derivative is only meaningful where the original expression is defined: for example, the derivative of `ln(x)` is `1 / x`, which can be evaluated at `x = -1` even though `ln(-1)` is undefined, so the original expression should always be evaluated first. Derivatives with more than 10000 terms are rejected.
 
 ## Results and errors
 
