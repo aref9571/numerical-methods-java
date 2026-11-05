@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public final class Differentiator {
 
-    public static final int MAX_DERIVATIVE_SIZE = 10_000;
+    public static final int MAX_DERIVATIVE_SIZE = 100_000;
 
     private static final Expression ZERO = new NumberExpression(0);
     private static final Expression ONE = new NumberExpression(1);

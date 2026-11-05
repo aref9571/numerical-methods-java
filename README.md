@@ -4,7 +4,7 @@ A command-line application for solving common numerical-methods problems in Java
 
 ## Status
 
-Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, and the error metrics are implemented; the other numerical methods are not implemented yet.
+Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics and Taylor polynomials are implemented; the other numerical methods are not implemented yet.
 
 ## Requirements
 
@@ -79,7 +79,7 @@ Derivatives are computed symbolically with the sum, product, quotient, power and
 | `abs(u)` | `u / abs(u)`, undefined where `u = 0` |
 | `sqrt(u)`, `asin(u)`, `acos(u)` | undefined where the function has a vertical tangent, for example `sqrt` at 0 |
 
-Evaluating a derivative fails with a clear message at points where it is undefined, instead of returning a value. A derivative is only meaningful where the original expression is defined: for example, the derivative of `ln(x)` is `1 / x`, which can be evaluated at `x = -1` even though `ln(-1)` is undefined, so the original expression should always be evaluated first. Derivatives with more than 10000 terms are rejected.
+Evaluating a derivative fails with a clear message at points where it is undefined, instead of returning a value. A derivative is only meaningful where the original expression is defined: for example, the derivative of `ln(x)` is `1 / x`, which can be evaluated at `x = -1` even though `ln(-1)` is undefined, so the original expression should always be evaluated first. Derivatives with more than 100000 terms are rejected.
 
 ## Results and errors
 
@@ -114,6 +114,21 @@ For a true value `p` and an approximation `p*`:
 Both values must be finite numbers. When the true value is 0, the relative and percentage errors are undefined, and they are reported as errors instead of returning infinity or NaN. Use the absolute error in that case. A result too large for a `double` is also reported as an error.
 
 These metrics measure the error of one approximation against a known true value. They are not theoretical error bounds: a bound limits the error a method can make under stated conditions, without needing the true value, while a measured error only describes the case that was computed.
+
+## Taylor polynomials
+
+The Taylor polynomial of order `n` about a center `a` is
+
+`T(x) = f(a) + f'(a) * (x - a) + f''(a) / 2! * (x - a)^2 + ... + f^(n)(a) / n! * (x - a)^n`
+
+The coefficients come from the symbolic derivatives above, so they are exact up to floating-point rounding. The center and the target point must be finite, and the order must be between 0 and 20. When the function can be evaluated at the target point, the result also reports the exact value and the observed absolute and relative error; the relative error is left out when the exact value is 0.
+
+Limitations:
+
+- If the function or one of its derivatives is undefined at the center, for example `sqrt(x)` or `abs(x)` about 0, the calculation fails with a message naming the derivative.
+- Symbolic derivatives grow quickly for quotients, roots, logarithms and `tan`. Functions such as `1/(1+x^2)`, `sqrt(1+x)` or `ln(x)` usually reach the 100000-term limit at orders above about 6 to 8, and this is reported as an error. `sin`, `cos`, `exp` and polynomials work up to order 20.
+- A higher order does not always help: far from the center, or outside the radius of convergence, as for `ln(x)` about 1 at `x = 3`, the error can grow with the order.
+- The observed error compares the polynomial with the computed function value at one point. It is not the Taylor remainder bound and does not guarantee the error at other points.
 
 ## Run the tests
 
