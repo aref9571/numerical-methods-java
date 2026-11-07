@@ -4,7 +4,7 @@ A command-line application for solving common numerical-methods problems in Java
 
 ## Status
 
-Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics and Taylor polynomials are implemented; the other numerical methods are not implemented yet.
+Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics, Taylor polynomials, and the bisection and false position root-finding methods are implemented; the other numerical methods are not implemented yet.
 
 ## Requirements
 
@@ -129,6 +129,22 @@ Limitations:
 - Symbolic derivatives grow quickly for quotients, roots, logarithms and `tan`. Functions such as `1/(1+x^2)`, `sqrt(1+x)` or `ln(x)` usually reach the 100000-term limit at orders above about 6 to 8, and this is reported as an error. `sin`, `cos`, `exp` and polynomials work up to order 20.
 - A higher order does not always help: far from the center, or outside the radius of convergence, as for `ln(x)` about 1 at `x = 3`, the error can grow with the order.
 - The observed error compares the polynomial with the computed function value at one point. It is not the Taylor remainder bound and does not guarantee the error at other points.
+
+## Bracketing root finding
+
+Bisection and false position (regula falsi) look for a root of `f` in an interval `[a, b]`. Both need `a < b`, finite endpoints, an interval whose length fits in a `double`, `f` defined at both endpoints and a sign change: `f(a)` and `f(b)` must have opposite signs. Otherwise the input is rejected before any iteration starts. If `f(a)` or `f(b)` is exactly 0, that endpoint is returned after 0 iterations (the lower one if both are roots).
+
+- **Bisection** takes the midpoint and keeps the half where the sign changes. It stops when the interval is within the tolerance, or when `f` is exactly 0 at a midpoint.
+- **False position** takes the point where the straight line through `(a, f(a))` and `(b, f(b))` crosses zero. When two successive points are within the tolerance, it checks `f` one tolerance step further towards the other end. It stops only if the sign changes there, so the root is known to lie within that step; otherwise it keeps that point as the new endpoint and continues.
+
+For both methods the reported error estimate is the length of an interval that contains a sign change. If `f` is continuous there, this is a bound on the distance to a root.
+
+Limitations:
+
+- A root where `f` touches zero without changing sign, such as `(x - 1)^2`, cannot be bracketed.
+- A sign change can also come from a pole or a jump, as for `tan(x)` on `[1, 2]` or `1/x` on `[-1, 2]`. If the interval closes in on a point where `|f|` is larger than at both starting endpoints, or `f` is undefined at a new point, the result is `BREAKDOWN`, not a root.
+- False position can be very slow when one endpoint never moves, for example `(x - 1)^3` on `[0, 3]`, which reaches the default limit of 100 iterations while bisection converges in 29. The result is then `ITERATION_LIMIT_REACHED`.
+- Bisection cannot split an interval below the spacing of `double` values. A tolerance smaller than that spacing, such as `1e-20` for a root near 1.4, ends in `BREAKDOWN` with the best approximation found.
 
 ## Run the tests
 
