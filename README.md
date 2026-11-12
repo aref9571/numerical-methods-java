@@ -4,7 +4,7 @@ A command-line application for solving common numerical-methods problems in Java
 
 ## Status
 
-Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics, Taylor polynomials, and the bisection and false position root-finding methods are implemented; the other numerical methods are not implemented yet.
+Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics, Taylor polynomials, the bisection and false position root-finding methods, and the Newton and secant methods are implemented; the other numerical methods are not implemented yet.
 
 ## Requirements
 
@@ -145,6 +145,21 @@ Limitations:
 - A sign change can also come from a pole or a jump, as for `tan(x)` on `[1, 2]` or `1/x` on `[-1, 2]`. If the interval closes in on a point where `|f|` is larger than at both starting endpoints, or `f` is undefined at a new point, the result is `BREAKDOWN`, not a root.
 - False position can be very slow when one endpoint never moves, for example `(x - 1)^3` on `[0, 3]`, which reaches the default limit of 100 iterations while bisection converges in 29. The result is then `ITERATION_LIMIT_REACHED`.
 - Bisection cannot split an interval below the spacing of `double` values. A tolerance smaller than that spacing, such as `1e-20` for a root near 1.4, ends in `BREAKDOWN` with the best approximation found.
+
+## Open root finding
+
+Newton's method and the secant method start from one or two guesses instead of a bracket. Each returns the usual result (root, `f` at the root, error estimate, iteration count and status) together with the list of iterates, from which the observed order of convergence can be estimated (about 2 for Newton, about 1.6 for secant when the iteration converges cleanly).
+
+- **Newton** uses `x_next = x - f(x) / f'(x)`. The derivative is computed symbolically, or an expression for it can be supplied. It stops when the step is within the tolerance or `f` is exactly 0.
+- **Secant** replaces the derivative by the slope through the last two points. It needs two different starting values. It stops only after two consecutive steps are within the tolerance, so one accidentally small step is not enough.
+
+A starting value where `f` is undefined, or equal starting values for the secant method, are rejected before any iteration. Problems during the iteration give `BREAKDOWN` with a reason, never an invented root: a zero or undefined derivative, an iterate outside the domain of `f`, a flat secant line (`f` equal at both points), or a secant step of exactly 0 where `f` is not 0 ("this is not a root").
+
+Limitations:
+
+- Both methods can diverge or cycle from a poor start. For example Newton on `x^3 - 2*x + 2` from 0 jumps between 0 and 1 until the iteration limit, and Newton on `atan(x)` from 1.5 overshoots until the derivative can no longer be evaluated.
+- At a double root such as `(x - 1)^2` the convergence is only linear, so many more iterations are needed than the usual order suggests.
+- Secant on `x^10 - 1` from `[0, 1.3]` stalls in the flat region near 0.18 where `f = -1`, and reports a breakdown instead of a root.
 
 ## Run the tests
 
