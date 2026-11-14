@@ -4,7 +4,7 @@ A command-line application for solving common numerical-methods problems in Java
 
 ## Status
 
-Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics, Taylor polynomials, the bisection and false position root-finding methods, and the Newton and secant methods are implemented; the other numerical methods are not implemented yet.
+Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics, Taylor polynomials, the bisection and false position root-finding methods, and the Newton and secant methods, and fixed-point iteration with Aitken extrapolation are implemented; the other numerical methods are not implemented yet.
 
 ## Requirements
 
@@ -160,6 +160,19 @@ Limitations:
 - Both methods can diverge or cycle from a poor start. For example Newton on `x^3 - 2*x + 2` from 0 jumps between 0 and 1 until the iteration limit, and Newton on `atan(x)` from 1.5 overshoots until the derivative can no longer be evaluated.
 - At a double root such as `(x - 1)^2` the convergence is only linear, so many more iterations are needed than the usual order suggests.
 - Secant on `x^10 - 1` from `[0, 1.3]` stalls in the flat region near 0.18 where `f = -1`, and reports a breakdown instead of a root.
+
+## Fixed-point iteration
+
+Fixed-point iteration solves `x = g(x)` by repeating `x_next = g(x)` from a starting value. The result includes the list of iterates, the symbolic derivative `g'`, its value at the start and at the final iterate, and an Aitken extrapolation of the limit with its error estimate (available once there are three iterates).
+
+- **Convergence** is expected when `|g'| < 1` near the fixed point. A slope near 0 gives fast convergence (the Newton form `(x + 5/x)/2` for the square root of 5), a slope near 1 gives slow linear convergence.
+- **Interval check:** for an interval `[a, b]`, 201 sample points are used to test whether `g` maps the interval into itself and to estimate `lambda`, the largest `|g'|`. If `lambda < 1` and the interval maps into itself, `g` is a contraction, and the error after `n` steps is at most `lambda^n / (1 - lambda)` times the first step.
+
+Limitations:
+
+- A slope with `|g'| > 1` makes the iteration diverge. It is stopped as `BREAKDOWN` once a value is not finite or exceeds `1e100`, or if `g` is undefined at an iterate.
+- A slope of exactly -1, as for `5/x`, makes the iterates oscillate between two values until the iteration limit.
+- The interval check is a sampled estimate, not a proof.
 
 ## Run the tests
 
