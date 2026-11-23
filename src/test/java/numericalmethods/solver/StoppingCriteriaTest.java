@@ -71,4 +71,33 @@ class StoppingCriteriaTest {
         assertFalse(criteria.isWithinTolerance(Double.NaN, 1.0));
         assertFalse(criteria.isWithinTolerance(Double.POSITIVE_INFINITY, 1.0));
     }
+
+    @Test
+    void absoluteToleranceIgnoresTheSizeOfTheReference() {
+        StoppingCriteria criteria = StoppingCriteria.absolute(1e-6, 100);
+
+        assertEquals(StoppingCriteria.ToleranceMode.ABSOLUTE, criteria.mode());
+        assertTrue(criteria.isWithinTolerance(1e-6, 1e6));
+        assertFalse(criteria.isWithinTolerance(0.9, 1e6));
+    }
+
+    @Test
+    void twoArgumentConstructorKeepsRelativeMode() {
+        assertEquals(StoppingCriteria.ToleranceMode.RELATIVE, new StoppingCriteria(1e-6, 100).mode());
+        assertEquals(StoppingCriteria.ToleranceMode.RELATIVE, StoppingCriteria.defaults().mode());
+    }
+
+    @Test
+    void stepIsScaledOnlyInRelativeMode() {
+        assertEquals(1e-6, StoppingCriteria.absolute(1e-6, 100).step(1e6));
+        assertEquals(1.0, new StoppingCriteria(1e-6, 100).step(-1e6), 1e-15);
+        assertEquals(1e-6, new StoppingCriteria(1e-6, 100).step(0.5));
+    }
+
+    @Test
+    void missingModeIsRejected() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new StoppingCriteria(1e-6, 100, null));
+        assertEquals("A tolerance mode is required", exception.getMessage());
+    }
 }

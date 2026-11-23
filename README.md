@@ -4,7 +4,7 @@ A command-line application for solving common numerical-methods problems in Java
 
 ## Status
 
-Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics, Taylor polynomials, the bisection and false position root-finding methods, and the Newton and secant methods, and fixed-point iteration with Aitken extrapolation are implemented; the other numerical methods are not implemented yet.
+Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics, Taylor polynomials, the bisection, false position, Newton and secant root-finding methods, fixed-point iteration with Aitken extrapolation and a root scan over an interval are implemented; the other numerical methods are not implemented yet.
 
 ## Requirements
 
@@ -87,7 +87,8 @@ Iterative methods stop when the change between steps is within the tolerance or 
 
 - The tolerance must be a positive, finite number. The default is `1e-8`.
 - The iteration limit must be between 1 and 100000. The default is 100.
-- The tolerance works as an absolute tolerance for values up to 1 in size and as a relative tolerance for larger values: a step passes when `|change| <= tolerance * max(1, |value|)`.
+- By default the tolerance works as an absolute tolerance for values up to 1 in size and as a relative tolerance for larger values: a step passes when `|change| <= tolerance * max(1, |value|)`.
+- In absolute mode a step passes when `|change| <= tolerance`, whatever the size of the value. This is the usual stopping rule for bisection, `b - c <= tolerance`.
 
 Each solver result has one of three statuses:
 
@@ -144,6 +145,7 @@ Limitations:
 - A root where `f` touches zero without changing sign, such as `(x - 1)^2`, cannot be bracketed.
 - A sign change can also come from a pole or a jump, as for `tan(x)` on `[1, 2]` or `1/x` on `[-1, 2]`. If the interval closes in on a point where `|f|` is larger than at both starting endpoints, or `f` is undefined at a new point, the result is `BREAKDOWN`, not a root.
 - False position can be very slow when one endpoint never moves, for example `(x - 1)^3` on `[0, 3]`, which reaches the default limit of 100 iterations while bisection converges in 29. The result is then `ITERATION_LIMIT_REACHED`.
+- Bisection halves the interval every step, so after `n` steps the root lies within `(b - a) / 2^n` of the midpoint. With an absolute tolerance it therefore needs `ceil(log2((b - a) / tolerance))` iterations, for example 10 for `x^6 - x - 1` on `[1, 2]` with tolerance `0.001`.
 - Bisection cannot split an interval below the spacing of `double` values. A tolerance smaller than that spacing, such as `1e-20` for a root near 1.4, ends in `BREAKDOWN` with the best approximation found.
 
 ## Open root finding
@@ -173,6 +175,22 @@ Limitations:
 - A slope with `|g'| > 1` makes the iteration diverge. It is stopped as `BREAKDOWN` once a value is not finite or exceeds `1e100`, or if `g` is undefined at an iterate.
 - A slope of exactly -1, as for `5/x`, makes the iterates oscillate between two values until the iteration limit.
 - The interval check is a sampled estimate, not a proof.
+
+## Root scan
+
+A root scan looks for every root of `f` in `[a, b]`. It evaluates `f` at equally spaced sample points (1000 intervals by default, at most 1000000) and refines each sign change between neighbouring samples with bisection. For `sin(1/x)` on `[0.05, 1]` it finds the six roots `1/(k*pi)`, `k = 1, ..., 6`.
+
+The scan result lists:
+
+- the roots found, in increasing order, including samples where `f` is exactly 0;
+- suspected discontinuities: sign changes where bisection ends in `BREAKDOWN`, such as the pole of `1/(x - 1.05)`, which are not reported as roots;
+- the number of samples where `f` is undefined, which are skipped (for `ln(x)` on `[-1, 3]`, every sample at or below 0);
+- possible double roots: samples where `|f|` drops to at most a quarter of both neighbours without a sign change, as near 1.01 for `(x - 1.01)^2` on `[0, 3]`.
+
+Limitations:
+
+- Two roots closer together than the sample spacing can cancel each other's sign change and be missed; more samples help.
+- A possible double root is only a hint for a closer look, for example with Newton's method; the scan does not refine it.
 
 ## Run the tests
 

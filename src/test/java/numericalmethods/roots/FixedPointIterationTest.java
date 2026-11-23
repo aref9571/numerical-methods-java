@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 class FixedPointIterationTest {
 
     private static final double ROOT_FIVE = Math.sqrt(5);
-    private static final StoppingCriteria CRITERIA = new StoppingCriteria(1e-10, 200);
+    private static final StoppingCriteria CRITERIA = StoppingCriteria.absolute(1e-10, 200);
 
     private static FixedPointIteration.Result run(String g) {
         return FixedPointIteration.solve(ExpressionParser.parse(g), "x", 2.5, CRITERIA);
@@ -57,7 +57,7 @@ class FixedPointIterationTest {
     @Test
     void aitkenExtrapolationImprovesALinearlyConvergingIterate() {
         FixedPointIteration.Result shortRun = FixedPointIteration.solve(ExpressionParser.parse("1 + x - x^2/5"), "x",
-                2.5, new StoppingCriteria(1e-10, 3));
+                2.5, StoppingCriteria.absolute(1e-10, 3));
         double plain = shortRun.iteration().result().root();
         double extrapolated = shortRun.aitkenEstimate().orElseThrow();
         assertTrue(Math.abs(extrapolated - ROOT_FIVE) < Math.abs(plain - ROOT_FIVE));

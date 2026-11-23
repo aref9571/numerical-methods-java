@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class OpenRootFinderTest {
 
     private static final Expression SIXTH_DEGREE = ExpressionParser.parse("x^6 - x - 1");
-    private static final StoppingCriteria TIGHT = new StoppingCriteria(1e-10, 100);
+    private static final StoppingCriteria TIGHT = StoppingCriteria.absolute(1e-10, 100);
 
     @Test
     void newtonReproducesKnownIterateSequenceForSixthDegreePolynomial() {
@@ -57,7 +57,7 @@ class OpenRootFinderTest {
     @Test
     void newtonReportsIterationLimitWhenNoRealRootExists() {
         IterativeRootResult result = OpenRootFinder.newton(ExpressionParser.parse("x^2 + 1"), "x", 0.5,
-                new StoppingCriteria(1e-12, 30));
+                StoppingCriteria.absolute(1e-12, 30));
         assertEquals(SolverStatus.ITERATION_LIMIT_REACHED, result.result().status());
     }
 

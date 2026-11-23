@@ -95,7 +95,7 @@ public final class BracketingRootFinder {
                 continue;
             }
 
-            double step = criteria.tolerance() * Math.max(1.0, Math.abs(point));
+            double step = criteria.step(point);
             double probe = point == a ? point + step : point - step;
             if (probe <= a || probe >= b) {
                 return finish(start, variable, point, fPoint, b - a, iteration);
