@@ -4,7 +4,7 @@ A command-line application for solving common numerical-methods problems in Java
 
 ## Status
 
-Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics, Taylor polynomials, the bisection, false position, Newton and secant root-finding methods, fixed-point iteration with Aitken extrapolation and a root scan over an interval are implemented; the other numerical methods are not implemented yet.
+Early development. The expression parser, symbolic derivatives, the shared conventions for solver results and input validation, the error metrics, Taylor polynomials, the bisection, false position, Newton and secant root-finding methods, fixed-point iteration with Aitken extrapolation and a root scan over an interval are implemented. The command-line program covers root finding; the other topics and numerical methods are not implemented yet.
 
 ## Requirements
 
@@ -21,6 +21,29 @@ java -jar target/numerical-methods-0.1.0-SNAPSHOT.jar
 ```
 
 On Windows, use `mvnw.cmd` instead of `./mvnw`.
+
+## Command-line use
+
+Without arguments the program starts a menu. Choose a topic and a method by number; each value is asked for in turn, with an example value in brackets that Enter accepts. The menu then prints the equivalent one-line command and runs it. A one-line command can also be typed at any menu prompt, `h` shows help and `q` quits.
+
+With arguments the program runs one command and exits:
+
+```bash
+java -jar target/numerical-methods-0.1.0-SNAPSHOT.jar "bisection x^6 - x - 1 on [1, 2], tol 0.001"
+```
+
+| Command | Example |
+|---|---|
+| `root` | `root x^6 - x - 1 on [1, 2]` runs bisection, false position, Newton (from the midpoint) and secant (from the endpoints) and compares them; `root f from x0` runs Newton |
+| `bisection`, `falseposition` | `bisection x^6 - x - 1 on [1, 2]` |
+| `newton` | `newton x^6 - x - 1 from 1.5` |
+| `secant` | `secant x^6 - x - 1 from [2, 1]` |
+| `fixedpoint` | `fixedpoint 1 + x - x^2/5 from 2.5, interval [2, 2.5]` |
+| `scan` | `scan sin(10*x) on [0, 3], samples 1000` |
+
+Options follow the command after commas: `tol` (absolute tolerance, default `1e-10`), `max` (iteration limit, default 100), `samples` (for `scan`) and `interval` (contraction check for `fixedpoint`). Numbers may be constant expressions such as `pi/2`.
+
+Each report has the sections `Input` (the parsed function, fully bracketed, and the parameters), `Result`, `Diagnostics`, a comparison table where several methods ran, and `Warnings`. Numbers are shown with 10 significant digits. The comparison uses the converged result inside the interval with the smallest `|f|`; if no method converged it says "no root found" instead of showing an approximation. Warnings point out, for example, a pole mistaken for a root, other roots in the interval, a fixed-point 2-cycle, slow convergence or a failed contraction check. Invalid input prints `Error:` with the reason.
 
 ## Expression syntax
 
